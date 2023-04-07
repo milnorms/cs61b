@@ -9,6 +9,25 @@ public class LeapYear {
      */
     public static boolean isLeapYear(int year) {
         // Optional TODO: Fill in this method.
+        // Leap Years are defined as a year divisible by 400
+        // or divisible by 4
+        // and not by 100
+        //. For example, 2000 and 2004 are leap years. 1900, 2003, and 2100 are not leap years.
+
+        boolean isLeap;
+
+        if (year % 400 == 0) {
+            isLeap = true;
+        } else if ((year % 4 == 0) & (year % 100 != 0)) {
+            isLeap = true;
+        }
+        else {
+            isLeap = false;
+        }
+
+        return isLeap;
+
+
     }
 
     /** Calls isLeapYear to print correct statement. */
