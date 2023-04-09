@@ -1,16 +1,26 @@
 /** Class that prints the Collatz sequence starting from a given number.
- *  @author YOUR NAME HERE
+ *  @author Mili
  */
 public class Collatz {
 
-    /** Returns the nextNumber in a Collatz sequence. */
+    /** Returns the nextNumber in a Collatz sequence.
+     * @param n Number to run collatz sequence on
+     * */
     public static int nextNumber(int n) {
-        // TODO: Fill in this method.
-        return 1;
+
+        if (n==1) {
+            return 1;
+        }
+        else if (n % 2 == 0){
+            return n/2;
+        } else {
+            return (3*n)+1;
+        }
+
     }
 
     public static void main(String[] args) {
-        int n = 5;
+        int n = 67;
         System.out.print(n + " ");
 
         // Some starter code to test
