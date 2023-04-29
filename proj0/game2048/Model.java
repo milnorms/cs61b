@@ -137,8 +137,25 @@ public class Model extends Observable {
      *  Empty spaces are stored as null.
      */
     public static boolean emptySpaceExists(Board b) {
-        // TODO: Fill in this function.
-        return false;
+
+        int size = b.size();
+        boolean isEmpty = false;
+
+
+//        Iterate through all tiles (rows and columns)
+        for (int i=0; i < size; i++) {
+
+            for (int j=0; j < size; j++) {
+//                System.out.println(b.tile(i,j));
+//                check if current tile is null/empty
+                if (b.tile(i,j) == null) {
+                    isEmpty = true;
+                    break;
+                }
+
+            }
+        }
+        return isEmpty;
     }
 
     /**
@@ -147,8 +164,50 @@ public class Model extends Observable {
      * given a Tile object t, we get its value with t.value().
      */
     public static boolean maxTileExists(Board b) {
-        // TODO: Fill in this function.
-        return false;
+        int size = b.size();
+        boolean isMax = false;
+
+//        Iterate through all tiles (rows and columns)
+        for (int i=0; i < size; i++) {
+
+            for (int j=0; j < size; j++) {
+                // Error checking value. If the tile is empty, set the value to 0
+                int value = b.tile(i,j) == null ? 0 : b.tile(i,j).value();
+//                System.out.println(value);
+//                check if current tile is the max (2048)
+                if (value == MAX_PIECE) {
+                    isMax = true;
+                    break;
+                }
+            }
+        }
+        return isMax;
+
+    }
+
+    // atLeastOneMoveExists helper
+    public static boolean checkBelow (Board b, int i, int j, int curValue){
+        // safe to check below
+        int belowValue = b.tile(i+1,j) == null ? 0 : b.tile(i+1,j).value();
+        return (curValue == belowValue);
+    }
+
+    public static boolean checkAbove (Board b, int i, int j, int curValue){
+        // safe to check below
+        int aboveValue = b.tile(i-1,j) == null ? 0 : b.tile(i-1,j).value();
+        return (curValue == aboveValue);
+    }
+
+    public static boolean checkLeft (Board b, int i, int j, int curValue){
+        // safe to check below
+        int leftValue = b.tile(i,j-1) == null ? 0 : b.tile(i,j-1).value();
+        return (curValue == leftValue);
+    }
+
+    public static boolean checkRight (Board b, int i, int j, int curValue){
+        // safe to check below
+        int rightValue = b.tile(i,j+1) == null ? 0 : b.tile(i,j+1).value();
+        return (curValue == rightValue);
     }
 
     /**
@@ -158,8 +217,140 @@ public class Model extends Observable {
      * 2. There are two adjacent tiles with the same value.
      */
     public static boolean atLeastOneMoveExists(Board b) {
-        // TODO: Fill in this function.
-        return false;
+        // TODO: REFACTOR THE HECK OUTTA THIS
+        int size = b.size();
+        boolean moveExists = false;
+
+
+        // Check for empty space
+        if (emptySpaceExists(b)) {
+            return true;
+        }
+
+        //        Iterate through all tiles (rows and columns)
+        for (int i=0; i < size; i++) {
+            // break out of outer loop
+            if (moveExists) break;
+
+            for (int j=0; j < size; j++) {
+                // Error checking value. If the tile is empty, set the value to 0
+                int curValue = b.tile(i,j) == null ? 0 : b.tile(i,j).value();
+
+                // position bound trackers
+                // Rows are opposite???
+                // rows
+                boolean isLastRow = i == size-1;
+                boolean isFirstRow = i == 0;
+                //cols
+                boolean isFirstCol = j == 0;
+                boolean isLastCol = j == size-1;
+
+
+                // boundary checks
+
+                // handles all first row
+                if (isFirstRow) {
+                    // safe to check above
+                   moveExists = checkBelow(b, i, j, curValue);
+//                    System.out.println("curval: "+curValue+" i: "+i+" j: "+j+" moveExists: "+moveExists);
+
+                   if (moveExists) break;
+
+                   // first row, first col. safe to check right only
+                   if (isFirstCol) {
+                       moveExists = checkRight(b, i, j, curValue);
+                       if (moveExists) break;
+                   }
+
+                    // first row, last col. safe to check left only
+                    else if (isLastCol) {
+                        moveExists = checkLeft(b, i, j, curValue);
+                        if (moveExists) break;
+                    }
+                    // any other space on first row. safe to check left and right
+                    else {
+
+                       moveExists = checkLeft(b, i, j, curValue) || checkRight(b, i, j, curValue);
+                       if (moveExists) break;
+
+                   }
+                }
+
+                // handles all last row
+
+                else if (isLastRow) {
+                    // safe to check above
+                    moveExists = checkAbove(b, i, j, curValue);
+
+                    if (moveExists) break;
+
+                    // last row, first col. safe to check right only
+                    if (isFirstCol) {
+                        moveExists = checkRight(b, i, j, curValue);
+                        if (moveExists) break;
+                    }
+
+                    // last row, last col. safe to check left only
+                    else if (isLastCol) {
+                        moveExists = checkLeft(b, i, j, curValue);
+                        if (moveExists) break;
+                    }
+                    // any other space on last row. safe to check left and right
+                    else {
+
+                        moveExists = checkLeft(b, i, j, curValue) || checkRight(b, i, j, curValue);
+                        if (moveExists) break;
+
+                    }
+                }
+                // check 1st and last cols
+
+                else if (isFirstCol) {
+                    // check right
+                    moveExists = checkRight(b, i, j, curValue);
+                    if (moveExists) break;
+
+                } else if (isLastCol) {
+                    // check left
+                    moveExists = checkLeft(b, i, j, curValue);
+                    if (moveExists) break;
+                }
+
+
+                // not in any of the above boundary scenarios, safe to check all 4 adjacent tiles
+
+                else {
+
+                    if (checkBelow(b, i, j, curValue)) {
+                        moveExists = true;
+                        break;
+                    }
+                    if (checkRight(b, i, j, curValue)) {
+                        moveExists = true;
+                        break;
+                    }
+                    if (checkAbove(b, i, j, curValue)) {
+                        moveExists = true;
+                        break;
+                    }
+                    if (checkLeft(b, i, j, curValue)) {
+                        moveExists = true;
+                        break;
+                    }
+
+//                    System.out.println("curval: "+curValue+" i: "+i+" j: "+j+" moveExists: "+moveExists);
+
+                }
+
+
+
+            }
+        }
+
+
+//        System.out.println(" moveExists: "+moveExists);
+
+        return moveExists;
     }
 
     /** Returns the model as a string, used for debugging. */
